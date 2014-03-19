@@ -1,0 +1,87 @@
+Test addFirst
+deque has 5 entries
+4
+3
+2
+1
+0
+deque has 5 entries
+
+Test addLast
+deque has 10 entries
+4
+3
+2
+1
+0
+0
+1
+2
+3
+4
+deque has 10 entries
+
+Test addLast
+deque has 5 entries
+0
+1
+2
+3
+4
+deque has 5 entries
+
+Test addFirst
+deque has 9 entries
+13
+12
+11
+10
+0
+1
+2
+3
+4
+deque has 9 entries
+
+Test removeFirst
+13
+12
+11
+deque has 6 entries
+10
+0
+1
+2
+3
+4
+deque has 6 entries
+
+Test removeLast
+4
+3
+2
+deque has 3 entries
+10
+0
+1
+deque has 3 entries
+
+Test addFirst then removeLast
+deque has 0 entries
+deque has 0 entries
+isEmpty is true
+
+Test addLast then removeFirst
+deque has 0 entries
+deque has 0 entries
+isEmpty is true
+
+Test addLast then removeLast
+deque has 0 entries
+deque has 0 entries
+isEmpty is true
+
+Test addFirst then removeFirst
+deque has 0 entries
+deque has 0 entries
+isEmpty is true
