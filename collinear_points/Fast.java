@@ -4,65 +4,55 @@ import java.util.Arrays;
 
 public class Fast {
 
-    private static void print_colinear(Point[] a) {
-	Arrays.sort(a);
-	for (int i = 0; i < a.length; i++) {
-	    if (i > 0)
+    private static void printPoints(Point[] a) {
+        for (int i = 0; i < a.length; i++) {
+            if (i > 0)
                 StdOut.print(" -> ");
             StdOut.print(a[i].toString());
         }
         StdOut.println();
     }
 
-    private static void print_points(Point[] a) {
-	for (int i = 0; i < a.length; i++) {
-            StdOut.print(a[i].toString());
-        }
-        StdOut.println();
+    private static void drawPoints(Point[] a) {
+        for (int i = 0; i < a.length; i++)
+            a[i].draw();
     }
 
-    private static void print_slopes(Point[] a, int j) {
-	for (int i = 0; i < a.length; i++) {
-            StdOut.print(a[j].slopeTo(a[i]) + " ");
-        }
-        StdOut.println();
-    }
-
-    private static void draw_points(Point[] a) {
-	for (int i = 0; i < a.length; i++)
-	    a[i].draw();
-    }
-
-    private static void draw_collinear(Point[] a) {
+    private static void drawCollinear(Point[] a) {
         a[0].drawTo(a[a.length-1]);
     }
 
-    private static void find_collinear(Point[] a, int i) {
-	int j = i+1;
-	int k = j;
-	while (k < a.length) {
-	    if (a[i].slopeTo(a[j]) != a[i].slopeTo(a[k])) {
-		j++;
-		k++;
-	    } else {
-		while (a[i].slopeTo(a[j]) == a[i].slopeTo(a[k])) {
-		    k++;
-		    if (k >= a.length) break;
-		}
-	    }
-	    // Now a[j] to a[k-1] are the same
-	    if (k-j >= 3) {
-		Point[] p4 = new Point[k-j+1];
-		p4[0] = a[i];
-		for (int m = j; m < k; m++) {
-		    p4[m-j+1] = a[m];
-		}
-		// Print and draw
-		print_colinear(p4);
-		draw_collinear(p4);
-	    }
-	    j = k-1;
-	}
+    private static void findCollinear(Point[] a) {
+        Point pivot = a[0];
+        int j = 1;
+        int k = 1;
+        while (k < a.length) {
+            if (pivot.slopeTo(a[j]) != pivot.slopeTo(a[k])) {
+                j++;
+                k++;
+            } else {
+                while (pivot.slopeTo(a[j]) == pivot.slopeTo(a[k])) {
+                    k++;
+                    if (k >= a.length) break;
+                }
+            }
+            // Now a[j] to a[k-1] are the same
+            if (k-j >= 3) {
+                Point[] p4 = new Point[k-j+1];
+                p4[0] = pivot;
+                for (int m = j; m < k; m++) {
+                    p4[m-j+1] = a[m];
+                }
+                // Sort points
+                Arrays.sort(p4);
+                // Print and draw only if the smallest Point is the pivot
+                if (pivot.slopeTo(p4[0]) == Double.NEGATIVE_INFINITY) {
+                    printPoints(p4);
+                    drawCollinear(p4);
+                }
+            }
+            j = k-1;
+        }
     }
 
     public static void main(String[] args) {
@@ -76,20 +66,25 @@ public class Fast {
         In in = new In(filename);
         int N = in.readInt();
         Point[] parr = new Point[N];
+        Point[] aux = new Point[N];
         for (int i = 0; i < N; i++) {
             int x = in.readInt();
             int y = in.readInt();
             Point p = new Point(x, y);
             parr[i] = p;
+            aux[i] = p;
         }
-
-	draw_points(parr);
-	
-	for (int i = 0; i < N-3; i++) {
-	    // Sort from i+1 to N-1 by slope to i-th point
-	    Arrays.sort(parr, i+1, N, parr[i].SLOPE_ORDER);
-	    find_collinear(parr, i);
-	}
+        // Draw all points
+        drawPoints(parr);
+        
+        for (int i = 0; i < N; i++) {
+            // Sort by slope
+            Point pivot = parr[i];
+            Arrays.sort(aux, pivot.SLOPE_ORDER);
+            // pivot will be sorted to the very first because slopeTo is -inf
+            assert pivot.slopeTo(aux[0]) == Double.NEGATIVE_INFINITY;
+            findCollinear(aux);
+        }
         StdDraw.show(0);
     }
 

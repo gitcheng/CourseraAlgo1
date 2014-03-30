@@ -12,12 +12,12 @@ public class Brute {
         return true;
     }
 
-     private static void draw_points(Point[] a) {
-	for (int i = 0; i < a.length; i++)
-	    a[i].draw();
+     private static void drawPoints(Point[] a) {
+        for (int i = 0; i < a.length; i++)
+            a[i].draw();
     }
 
-    private static void print_draw(Point p, Point q, Point r, Point s) {
+    private static void printAndDraw(Point p, Point q, Point r, Point s) {
         p4[0] = p;
         p4[1] = q;
         p4[2] = r;
@@ -54,15 +54,15 @@ public class Brute {
             parr[i] = p;
         }
 
-	draw_points(parr);
+        drawPoints(parr);
 
         // Loop over all combinations of 4 points
         for (int i = 0; i < parr.length-3; i++) {
             for (int j = i+1; j < parr.length-2; j++) {
                 for (int k = j+1; k < parr.length-1; k++) {
                     for (int n = k+1; n < parr.length; n++) {
-                        if (collinear(parr[i],parr[j],parr[k],parr[n]))
-                            print_draw(parr[i],parr[j],parr[k],parr[n]);
+                        if (collinear(parr[i], parr[j], parr[k], parr[n]))
+                            printAndDraw(parr[i], parr[j], parr[k], parr[n]);
                     }
                 }
             }
