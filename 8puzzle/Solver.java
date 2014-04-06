@@ -105,7 +105,6 @@ public class Solver {
 
     // min number of moves to solve initial board; -1 if no solution
     public int moves() {
-        if (!finished) return -1;
         if (isSolvable())
             return current1.moves;
         return -1;
@@ -113,7 +112,7 @@ public class Solver {
 
     // sequence of boards in a shortest solution; null if no solution
     public Iterable<Board> solution() {
-        if (!solved) return null;
+        if (!isSolvable()) return null;
         Stack<Board> q = new Stack<Board>();
         Node c = current1;
         while (c != null) {
@@ -142,6 +141,8 @@ public class Solver {
             Board initial = new Board(tiles);
             Solver solver = new Solver(initial);
             
+            StdOut.println("Moves = " + solver.moves());
+
             // print solution to standard output
             if (!solver.isSolvable())
                 StdOut.println("No solution possible");

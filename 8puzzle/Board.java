@@ -167,8 +167,6 @@ public class Board {
                 blocks[i][j] = in.readInt();
         Board initial = new Board(blocks);
 
-        Board initial2 = new Board(blocks);
-
         StdOut.println("Initial board");
         StdOut.println(initial);
         StdOut.println("Hamming = " + initial.hamming());
