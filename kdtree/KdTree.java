@@ -63,7 +63,6 @@ public class KdTree {
 	    return new RectHV(rect.xmin(), p.y(), rect.xmax(), rect.ymax());
     }
 
-
     // add the point p to the set (if it is not already in the set)
     public void insert(Point2D p) {
 	if (p.x() < 0 || p.x() > 1 || p.y() < 0 || p.y() > 1)
@@ -90,12 +89,6 @@ public class KdTree {
 	    // add the partitions
 	    RectHV rlb = lbrect(q.rect, p, q.orient);
 	    RectHV rrt = rtrect(q.rect, p, q.orient);
-	    //StdOut.println("new point " + p.toString());
-	    //if (q.orient == VERTICAL) StdOut.println("   vertical");
-	    //else StdOut.println("   horizontal");
-	    //StdOut.println("parent box " + q.rect.toString());
-	    //StdOut.println("        lb " + rlb.toString());
-	    //StdOut.println("        rt " + rrt.toString());
 	    q.lb = new Node(null, rlb, null, null, !q.orient, 0);
 	    q.rt = new Node(null, rrt, null, null, !q.orient, 0);
 	    q.N = 1;
@@ -179,8 +172,8 @@ public class KdTree {
     private void range(RectHV rect, Node q, TreeSet<Point2D> ps) {
 	if (q == null) return;
 	if (q.p == null) return;
+	assert q.lb != null;  // If a node has a point, it has partitions.
 	if (rect.contains(q.p)) ps.add(q.p);
-	if (q.lb == null) return;
 	if (q.orient == VERTICAL) {
 	    if (rect.xmin() < q.lb.rect.xmax())
 		range(rect, q.lb, ps);
@@ -195,11 +188,43 @@ public class KdTree {
     }
 
 
-
-
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D p) {
-	return null;
+	Node best = null;
+	best = nearest(p, root, best);
+	return best.p;
+    }
+    // helper private function
+    private Node nearest(Point2D p, Node q, Node best) {
+	if (q == null) return best;
+	if (q.p == null) return best;
+	if (best == null || q.p.distanceSquaredTo(p) < best.p.distanceSquaredTo(p))
+	    best = q;
+
+	if (q.orient == VERTICAL) {
+	    if (p.x() < q.lb.rect.xmax()) {
+		// update best looking at the left-bottom partition
+		best = nearest(p, q.lb, best);
+		// is right-top partition still viable? If yes, look at it.
+		if (best.p.distanceSquaredTo(p) > q.rt.rect.distanceSquaredTo(p))
+		    best = nearest(p, q.rt, best);
+	    } else {
+		best = nearest(p, q.rt, best);
+		if (best.p.distanceSquaredTo(p) > q.lb.rect.distanceSquaredTo(p))
+		    best = nearest(p, q.lb, best);
+	    }
+	} else { // HORIZONTAL
+	    if (p.y() < q.lb.rect.ymax()) {
+		best = nearest(p, q.lb, best);
+		if (best.p.distanceSquaredTo(p) > q.rt.rect.distanceSquaredTo(p))
+		    best = nearest(p, q.rt, best);
+	    } else {
+		best = nearest(p, q.rt, best);
+		if (best.p.distanceSquaredTo(p) > q.lb.rect.distanceSquaredTo(p))
+		    best = nearest(p, q.lb, best);
+	    }
+	}
+	return best;
     }
 
 
