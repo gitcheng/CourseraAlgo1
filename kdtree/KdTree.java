@@ -76,9 +76,8 @@ public class KdTree {
 	root = insert(root, p);
     }
 
-
+    // Helper insert function
     private Node insert(Node q, Point2D p) {
-
 	assert q != null;
 	assert q.rect != null;
 
@@ -89,6 +88,12 @@ public class KdTree {
 	    // add the partitions
 	    RectHV rlb = lbrect(q.rect, p, q.orient);
 	    RectHV rrt = rtrect(q.rect, p, q.orient);
+	    //StdOut.println("new point " + p.toString());
+	    //if (q.orient == VERTICAL) StdOut.println("   vertical");
+	    //else StdOut.println("   horizontal");
+	    //StdOut.println("parent box " + q.rect.toString());
+	    //StdOut.println("        lb " + rlb.toString());
+	    //StdOut.println("        rt " + rrt.toString());
 	    q.lb = new Node(null, rlb, null, null, !q.orient, 0);
 	    q.rt = new Node(null, rrt, null, null, !q.orient, 0);
 	    q.N = 1;
@@ -96,22 +101,109 @@ public class KdTree {
 	}
 
 	assert q.rt != null;
-	if (q.lb.rect.contains(p))
-	    q.lb = insert(q.lb, p);
-	else if (q.rt.rect.contains(p))
-	    q.rt = insert(q.rt, p);
-	else
-	    throw new IllegalArgumentException("node does not contain p");
-
+	if (q.orient == VERTICAL) {
+	    if (p.x() < q.lb.rect.xmax())
+		q.lb = insert(q.lb, p);
+	    else
+		q.rt = insert(q.rt, p);
+	} else { // HORIZONTAL
+	    if (p.y() < q.lb.rect.ymax())
+		q.lb = insert(q.lb, p);
+	    else
+		q.rt = insert(q.rt, p);
+	}
 	q.N = q.lb.N + q.rt.N + 1;
 	return q;
     }
 
     // does the set contain the point p?
     public boolean contains(Point2D p) {
+	return contains(root, p);
+    }
+
+    // helper contains function
+    private boolean contains(Node q, Point2D p) {
+	if (p == null) return false;
+	if (q.p == null) return false;
+	if (q.p.equals(p)) return true;
+	if (q.lb != null && q.lb.rect.contains(p))
+	    return contains(q.lb, p);
+	if (q.rt != null && q.rt.rect.contains(p))
+	    return contains(q.rt, p);
+	return false;
     }
     
-    public void draw()                              // draw all of the points to standard draw
-   public Iterable<Point2D> range(RectHV rect)     // all points in the set that are inside the rectangle
-   public Point2D nearest(Point2D p)               // a nearest neighbor in the set to p; null if set is empty
+    // draw all of the points to standard draw
+    public void draw() {
+       	StdDraw.setPenRadius(0.002);
+	StdDraw.setPenColor(StdDraw.BLACK);
+	if (root != null) root.rect.draw();
+	draw(root);
+    }
+
+    private void draw(Node q) {
+	if (q == null) return;
+       	StdDraw.setPenRadius(0.01);
+	StdDraw.setPenColor(StdDraw.BLACK);
+	if (q.p != null) q.p.draw();
+	if (q.lb == null) return;
+
+       	StdDraw.setPenRadius(0.002);
+	double x1 = 0, y1 = 0;
+	double y2 = q.lb.rect.ymax();
+	double x2 = q.lb.rect.xmax();
+	if (q.orient == VERTICAL) {
+	    StdDraw.setPenColor(StdDraw.RED);
+	    x1 = q.lb.rect.xmax();
+	    y1 = q.lb.rect.ymin();
+	} else {
+	    StdDraw.setPenColor(StdDraw.BLUE);
+	    x1 = q.lb.rect.xmin();
+	    y1 = q.lb.rect.ymax();
+	}
+	StdDraw.line(x1, y1, x2, y2);
+	if (q.lb != null) draw(q.lb);
+	if (q.rt != null) draw(q.rt);
+    }
+
+    // all points in the set that are inside the rectangle
+    public Iterable<Point2D> range(RectHV rect) {
+	return null;
+    }
+    
+    // a nearest neighbor in the set to p; null if set is empty
+    public Point2D nearest(Point2D p) {
+	return null;
+    }
+
+
+    // unit test: read in coordinates from a file and draw points
+    public static void main(String[] args) {
+	String filename = args[0];
+	In in = new In(filename);
+	int max = 10000000;
+	if (args.length > 1) {
+	    max = Integer.parseInt(args[1]);
+	}
+
+	StdDraw.show();
+
+	KdTree kdt = new KdTree();
+	Point2D plast = null;
+	while (!in.isEmpty() && max > 0) {
+	    double x = in.readDouble();
+	    double y = in.readDouble();
+	    Point2D p = new Point2D(x, y);
+	    kdt.insert(p);
+	    plast = p;
+	    max--;
+	}
+
+	StdOut.println("Is empty? " + kdt.isEmpty());
+	StdOut.println("Size = " + kdt.size());
+	StdOut.println("Contain test " + kdt.contains(plast));
+
+       	StdDraw.setPenRadius(0.01);
+	kdt.draw();
+    }
 }
