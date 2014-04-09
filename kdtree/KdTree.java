@@ -3,6 +3,8 @@
 // for geometric queries of points and rectangles.
 // http://coursera.cs.princeton.edu/algs4/assignments/kdtree.html
 //----------------------------------------------------------------------
+import java.util.TreeSet;
+
 public class KdTree {
 
     private Node root;
@@ -169,9 +171,32 @@ public class KdTree {
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
-	return null;
+	TreeSet<Point2D> inrange = new TreeSet<Point2D>();
+	range(rect, root, inrange);
+	return inrange;
     }
     
+    private void range(RectHV rect, Node q, TreeSet<Point2D> ps) {
+	if (q == null) return;
+	if (q.p == null) return;
+	if (rect.contains(q.p)) ps.add(q.p);
+	if (q.lb == null) return;
+	if (q.orient == VERTICAL) {
+	    if (rect.xmin() < q.lb.rect.xmax())
+		range(rect, q.lb, ps);
+	    if (rect.xmax() >= q.lb.rect.xmax())
+		range(rect, q.rt, ps);
+	} else { // HORIZONTAL
+	    if (rect.ymin() < q.lb.rect.ymax())
+		range(rect, q.lb, ps);
+	    if (rect.ymax() >= q.lb.rect.ymax())
+		range(rect, q.rt, ps);
+	}
+    }
+
+
+
+
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D p) {
 	return null;
