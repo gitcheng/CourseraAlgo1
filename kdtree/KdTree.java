@@ -33,7 +33,8 @@ public class KdTree {
 
     // constructor
     public KdTree() {
-        root = null;
+        // initialize root as an empty box
+        root = new Node(null, new RectHV(0, 0, 1, 1), null, null, VERTICAL, 0);
     }
 
     // is the set empty?
@@ -43,10 +44,7 @@ public class KdTree {
     
     // number of points in the set
     public int size() {
-        if (root == null)
-            return 0;
-        else 
-            return root.N;
+        return root.N;
     }
     
     // Left-bottom rectangle
@@ -68,13 +66,6 @@ public class KdTree {
     public void insert(Point2D p) {
         if (p.x() < 0 || p.x() > 1 || p.y() < 0 || p.y() > 1)
             throw new IllegalArgumentException("Invalid cooridnate");
-
-        // create a skeleton for root if it is null
-        if (root == null) {
-            RectHV r0 = new RectHV(0, 0, 1, 1);
-            root = new Node(null, r0, null, null, VERTICAL, 0);
-        }
-
         root = insert(root, p);
     }
 
@@ -95,6 +86,8 @@ public class KdTree {
             q.N = 1;
             return q;
         }
+
+        if (q.p.equals(p)) return q; // already exist
 
         assert q.rt != null;
         if (q.orient == VERTICAL) {
@@ -122,6 +115,7 @@ public class KdTree {
     private boolean contains(Node q, Point2D p) {
         if (p == null) return false;
         if (q.p == null) return false;
+        if (q.p.equals(p)) return true;
         if (q.lb == null) return false;
         if ((q.orient == VERTICAL && p.x() < q.lb.rect.xmax())
             || (q.orient == HORIZONTAL && p.y() < q.lb.rect.ymax()))
@@ -159,8 +153,8 @@ public class KdTree {
             y1 = q.lb.rect.ymax();
         }
         StdDraw.line(x1, y1, x2, y2);
-        if (q.lb != null) draw(q.lb);
-        if (q.rt != null) draw(q.rt);
+        draw(q.lb);
+        draw(q.rt);
     }
 
     // all points in the set that are inside the rectangle
@@ -191,6 +185,7 @@ public class KdTree {
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D p) {
+        if (this.isEmpty()) return null;
         Node best = null;
         best = nearest(p, root, best);
         return best.p;

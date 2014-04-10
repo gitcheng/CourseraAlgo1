@@ -38,6 +38,7 @@ public class TimeTest {
 	StdOut.println("Query nearest points using KdTree");
 	double t3 = time.elapsedTime();
 	int nq = 0;
+	double rate = 0;
 	while (true) {
 	    double x = StdRandom.uniform();
 	    double y = StdRandom.uniform();
@@ -46,10 +47,12 @@ public class TimeTest {
 	    nq++;
 	    if (nq % 10000 == 0) {
 		double elt = time.elapsedTime() - t3;
+		rate = nq * 1.0 / elt;
 		StdOut.println("Queried " + nq + " points. Time = " + elt);
 		if (elt > 1.0) break;
 	    }
 	}
+	StdOut.println("Event rate = " + rate + " per second");
 
 	StdOut.println("Query nearest points using brute force");
 	double t4 = time.elapsedTime();
@@ -62,12 +65,12 @@ public class TimeTest {
 	    nq++;
 	    if (nq % 1000 == 0) {
 		double elt = time.elapsedTime() - t4;
+		rate = nq * 1.0 / elt;
 		StdOut.println("Queried " + nq + " points. Time = " + elt);
 		if (elt > 1.0) break;
 	    }
 	}
-
-
+	StdOut.println("Event rate = " + rate + " per second");
     }
 
 }
